@@ -10,8 +10,12 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use TomasVotruba\Tryml\ArrayUtils;
 use TomasVotruba\Tryml\FileSystem\YamlFinder;
 use TomasVotruba\Tryml\FileSystem\YamlPrinter;
+use TomasVotruba\Tryml\ServicesResolver;
+use TomasVotruba\Tryml\SkippedServicesResolver;
+use TomasVotruba\Tryml\ValueObject\YamlFile;
 use Webmozart\Assert\Assert;
 
 final class RemoveExplicitArgumentsCommand extends Command
@@ -43,7 +47,9 @@ final class RemoveExplicitArgumentsCommand extends Command
 
         $this->symfonyStyle->note(sprintf('Found %d YAML files', count($yamlFiles)));
 
-        $this->resolveTypeNamesWithUniqueClass();
+
+        // those types should be skipped, as used in multiple services with different names
+        $ambiguousClassNames = $this->resolveAmbiguousClassTypes($yamlFiles);
 
         foreach ($yamlFiles as $yamlFile) {
             if ($yamlFile->getServices() === []) {
@@ -58,9 +64,37 @@ final class RemoveExplicitArgumentsCommand extends Command
                     continue;
                 }
 
-                $yamlFile->changedYamlService($serviceName, function (array $serviceDefinition) {
+                $yamlFile->changedYamlService($serviceName, function (array $serviceDefinition) use ($ambiguousClassNames): ?array {
                     // @todo detect unique types here
-                    dump($serviceDefinition['arguments']);
+                    foreach ($serviceDefinition['arguments'] as $key => $value) {
+                        if (! is_string($value)) {
+                            continue;
+                        }
+
+                        // named key => skip whole service
+                        if (is_string($key)) {
+                            return null;
+                        }
+
+                        // not references
+                        if (str_starts_with('@', $value)) {
+                            continue;
+                        }
+
+                        $type = trim($value, '@');
+
+                        // first letter should be an upper one, otherwise probably not a class type
+                        if (! ctype_upper($type[0])) {
+                            continue;
+                        }
+
+                        if (in_array($type, $ambiguousClassNames, true)) {
+                            continue;
+                        }
+
+                        // here we can remove the the type probably
+                        var_dump('remove key: ' . $key);
+                    }
 
                     return $serviceDefinition;
                 });
@@ -82,5 +116,26 @@ final class RemoveExplicitArgumentsCommand extends Command
         Assert::allFileExists($paths);
 
         return $paths;
+    }
+
+    /**
+     * @param YamlFile[] $yamlFiles
+     * @return string[]
+     */
+    private function resolveAmbiguousClassTypes(array $yamlFiles): array
+    {
+        $serviceClasses = [];
+
+        foreach ($yamlFiles as $yamlFile) {
+            foreach ($yamlFile->getServices() as $service) {
+                if (! isset($service['class'])) {
+                    continue;
+                }
+
+                $serviceClasses[] = $service['class'];
+            }
+        }
+
+        return ArrayUtils::resolveDuplicatedItems($serviceClasses);
     }
 }
