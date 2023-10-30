@@ -13,8 +13,6 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use TomasVotruba\Tryml\ArrayUtils;
 use TomasVotruba\Tryml\FileSystem\YamlFinder;
 use TomasVotruba\Tryml\FileSystem\YamlPrinter;
-use TomasVotruba\Tryml\ServicesResolver;
-use TomasVotruba\Tryml\SkippedServicesResolver;
 use TomasVotruba\Tryml\ValueObject\YamlFile;
 use Webmozart\Assert\Assert;
 
@@ -47,7 +45,6 @@ final class RemoveExplicitArgumentsCommand extends Command
 
         $this->symfonyStyle->note(sprintf('Found %d YAML files', count($yamlFiles)));
 
-
         // those types should be skipped, as used in multiple services with different names
         $ambiguousClassNames = $this->resolveAmbiguousClassTypes($yamlFiles);
 
@@ -64,7 +61,9 @@ final class RemoveExplicitArgumentsCommand extends Command
                     continue;
                 }
 
-                $yamlFile->changedYamlService($serviceName, function (array $serviceDefinition) use ($ambiguousClassNames): ?array {
+                $yamlFile->changedYamlService($serviceName, function (array $serviceDefinition) use (
+                    $ambiguousClassNames
+                ): ?array {
                     // @todo detect unique types here
                     foreach ($serviceDefinition['arguments'] as $key => $value) {
                         if (! is_string($value)) {
