@@ -16,7 +16,6 @@ use TomasVotruba\Tryml\ServicesResolver;
 use TomasVotruba\Tryml\SkippedServicesResolver;
 use TomasVotruba\Tryml\YamlTraverser\AddServicesDefaultsYamlTraverser;
 use TomasVotruba\Tryml\YamlTraverser\ReplaceNamedServiceToClassesYamlTraverser;
-use TomasVotruba\Tryml\YamlTraverser\ReplaceRabbitCallbackByTypeYamlTraverser;
 use TomasVotruba\Tryml\YamlTraverser\ReplaceServiceMethodCallByTypesYamlTraverser;
 use TomasVotruba\Tryml\YamlTraverser\ReplaceServiceNamedArgumentByTypesYamlTraverser;
 use Webmozart\Assert\Assert;
