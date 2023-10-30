@@ -71,7 +71,7 @@ final class RemoveExplicitArgumentsCommand extends Command
             }
         }
 
-        // $this->yamlPrinter->print($yamlFiles, $isDryRun);
+        $this->yamlPrinter->print($yamlFiles, $isDryRun);
 
         return self::SUCCESS;
     }
