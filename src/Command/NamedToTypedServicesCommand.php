@@ -111,12 +111,6 @@ final class NamedToTypedServicesCommand extends Command
         );
         $replaceServiceMethodCallByTypesYamlTraverser->traverse($yamlFiles);
 
-        // 4. replace rabbit consumer names
-        $replaceRabbitCallbackByTypeYamlTraverser = new ReplaceRabbitCallbackByTypeYamlTraverser(
-            $serviceNameToClassMap
-        );
-        $replaceRabbitCallbackByTypeYamlTraverser->traverse($yamlFiles);
-
         // @todo add 2nd comand to remove explicit arguments if the type is listed in configs as a single class
 
         $addServicesDefaultsYamlTraverser = new AddServicesDefaultsYamlTraverser();
