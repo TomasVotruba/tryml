@@ -10,14 +10,11 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use TomasVotruba\Tryml\Application\NamedServicesYamlProcessor;
 use TomasVotruba\Tryml\FileSystem\YamlFinder;
 use TomasVotruba\Tryml\FileSystem\YamlPrinter;
 use TomasVotruba\Tryml\ServicesResolver;
 use TomasVotruba\Tryml\SkippedServicesResolver;
-use TomasVotruba\Tryml\YamlTraverser\AddServicesDefaultsYamlTraverser;
-use TomasVotruba\Tryml\YamlTraverser\ReplaceNamedServiceToClassesYamlTraverser;
-use TomasVotruba\Tryml\YamlTraverser\ReplaceServiceMethodCallByTypesYamlTraverser;
-use TomasVotruba\Tryml\YamlTraverser\ReplaceServiceNamedArgumentByTypesYamlTraverser;
 use Webmozart\Assert\Assert;
 
 final class NamedToTypedServicesCommand extends Command
@@ -28,6 +25,7 @@ final class NamedToTypedServicesCommand extends Command
         private readonly YamlPrinter $yamlPrinter,
         private readonly ServicesResolver $servicesResolver,
         private readonly SkippedServicesResolver $skippedServicesResolver,
+        private readonly NamedServicesYamlProcessor $namedServicesYamlProcessor,
     ) {
         parent::__construct();
     }
@@ -90,30 +88,7 @@ final class NamedToTypedServicesCommand extends Command
         $this->symfonyStyle->listing($servicesNamesToReplaceWithClass);
         sleep(2);
 
-        // 1. replace named classes by type if possible
-        $replaceNamedServiceToClassesYamlTraverser = new ReplaceNamedServiceToClassesYamlTraverser(
-            $servicesNamesToReplaceWithClass
-        );
-        $replaceNamedServiceToClassesYamlTraverser->traverse($yamlFiles);
-
-        $serviceNameToClassMap = $replaceNamedServiceToClassesYamlTraverser->getServiceNameToClassMap();
-
-        // 2. replace argument service names by classes
-        $replaceServiceNamedArgumentByTypesYamlTraverser = new ReplaceServiceNamedArgumentByTypesYamlTraverser(
-            $serviceNameToClassMap
-        );
-        $replaceServiceNamedArgumentByTypesYamlTraverser->traverse($yamlFiles);
-
-        // 3. replace in method calls
-        $replaceServiceMethodCallByTypesYamlTraverser = new ReplaceServiceMethodCallByTypesYamlTraverser(
-            $serviceNameToClassMap
-        );
-        $replaceServiceMethodCallByTypesYamlTraverser->traverse($yamlFiles);
-
-        // @todo add 2nd comand to remove explicit arguments if the type is listed in configs as a single class
-
-        $addServicesDefaultsYamlTraverser = new AddServicesDefaultsYamlTraverser();
-        $addServicesDefaultsYamlTraverser->traverse($yamlFiles);
+        $this->namedServicesYamlProcessor->processYamlFiles($servicesNamesToReplaceWithClass, $yamlFiles);
 
         $this->yamlPrinter->print($yamlFiles, $isDryRun);
 
