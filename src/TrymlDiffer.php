@@ -12,12 +12,10 @@ final class TrymlDiffer
 {
     private Differ $differ;
 
-    private ColorConsoleDiffFormatter $colorConsoleDiffFormatter;
-
-    public function __construct()
-    {
+    public function __construct(
+        private readonly ColorConsoleDiffFormatter $colorConsoleDiffFormatter,
+    ) {
         $this->differ = new Differ(new UnifiedDiffOutputBuilder());
-        $this->colorConsoleDiffFormatter = new ColorConsoleDiffFormatter();
     }
 
     public function diffForConsole(string $old, string $new): string

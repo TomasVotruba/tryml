@@ -23,7 +23,7 @@ final class YamlFinder
         $finder = Finder::create()
             ->files()
             ->in($directories)
-            ->name('#\.(yml|yaml)#');
+            ->name('#\.(yml|yaml)$#');
 
         $yamlFiles = [];
 

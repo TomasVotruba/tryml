@@ -42,7 +42,29 @@ final class RemoveExplicitArgumentsCommand extends Command
 
         $yamlFiles = $this->yamlFinder->findYamlFiles($directoryPaths);
 
-        // @todo
+        $this->symfonyStyle->note(sprintf('Found %d YAML files', count($yamlFiles)));
+
+        foreach ($yamlFiles as $yamlFile) {
+            if ($yamlFile->getServices() === []) {
+                continue;
+            }
+
+            $this->symfonyStyle->note(sprintf('Processing "%s" file', $yamlFile->getRelativeFilePath()));
+
+            foreach ($yamlFile->getServices() as $serviceName => $serviceDefinition) {
+                if (! isset($serviceDefinition['arguments'])) {
+                    // nothing to improve
+                    continue;
+                }
+
+                $yamlFile->changedYamlService($serviceName, function (array $serviceDefinition) {
+                    // @todo detect unique types here
+                    dump($serviceDefinition['arguments']);
+
+                    return $serviceDefinition;
+                });
+            }
+        }
 
         return self::SUCCESS;
     }
