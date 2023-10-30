@@ -10,6 +10,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use TomasVotruba\Tryml\Analyzer\ArgumentDefinitionAnalyzer;
 use TomasVotruba\Tryml\ArrayUtils;
 use TomasVotruba\Tryml\FileSystem\YamlFinder;
 use TomasVotruba\Tryml\FileSystem\YamlPrinter;
@@ -22,6 +23,7 @@ final class RemoveExplicitArgumentsCommand extends Command
         private readonly SymfonyStyle $symfonyStyle,
         private readonly YamlFinder $yamlFinder,
         private readonly YamlPrinter $yamlPrinter,
+        private readonly ArgumentDefinitionAnalyzer $argumentDefinitionAnalyzer,
     ) {
         parent::__construct();
     }
@@ -53,54 +55,23 @@ final class RemoveExplicitArgumentsCommand extends Command
                 continue;
             }
 
-            $this->symfonyStyle->note(sprintf('Processing "%s" file', $yamlFile->getRelativeFilePath()));
-
             foreach ($yamlFile->getServices() as $serviceName => $serviceDefinition) {
-                if (! isset($serviceDefinition['arguments'])) {
-                    // nothing to improve
+                if (! is_array($serviceDefinition)) {
                     continue;
                 }
 
-                $yamlFile->changedYamlService($serviceName, function (array $serviceDefinition) use (
+                if (! $this->argumentDefinitionAnalyzer->hasFullyAutowireabeArguments(
+                    $serviceDefinition,
                     $ambiguousClassNames
-                ): ?array {
-                    // @todo detect unique types here
-                    foreach ($serviceDefinition['arguments'] as $key => $value) {
-                        if (! is_string($value)) {
-                            continue;
-                        }
+                )) {
+                    continue;
+                }
 
-                        // named key => skip whole service
-                        if (is_string($key)) {
-                            return null;
-                        }
-
-                        // not references
-                        if (str_starts_with('@', $value)) {
-                            continue;
-                        }
-
-                        $type = trim($value, '@');
-
-                        // first letter should be an upper one, otherwise probably not a class type
-                        if (! ctype_upper($type[0])) {
-                            continue;
-                        }
-
-                        if (in_array($type, $ambiguousClassNames, true)) {
-                            continue;
-                        }
-
-                        // here we can remove the the type probably
-                        var_dump('remove key: ' . $key);
-                    }
-
-                    return $serviceDefinition;
-                });
+                $this->symfonyStyle->note(sprintf('The "%s" service can drop its arguments', $serviceName));
             }
         }
 
-        $this->yamlPrinter->print($yamlFiles, $isDryRun);
+        // $this->yamlPrinter->print($yamlFiles, $isDryRun);
 
         return self::SUCCESS;
     }
