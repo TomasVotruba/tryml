@@ -43,6 +43,8 @@ final class RemoveExplicitArgumentsCommand extends Command
 
         $this->symfonyStyle->note(sprintf('Found %d YAML files', count($yamlFiles)));
 
+        $this->resolveTypeNamesWithUniqueClass();
+
         foreach ($yamlFiles as $yamlFile) {
             if ($yamlFile->getServices() === []) {
                 continue;
