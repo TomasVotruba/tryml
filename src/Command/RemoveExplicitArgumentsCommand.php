@@ -35,6 +35,12 @@ final class RemoveExplicitArgumentsCommand extends Command
 
         $this->addArgument('paths', InputArgument::IS_ARRAY, 'Paths to directories with YAML files');
 
+        $this->addOption(
+            'skip-type',
+            null,
+            InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED,
+            'Types to skip from replacing'
+        );
         $this->addOption('dry-run', null, InputOption::VALUE_NONE, 'Run without changing the files');
     }
 
@@ -42,6 +48,7 @@ final class RemoveExplicitArgumentsCommand extends Command
     {
         $directoryPaths = $this->getDirectoryPaths($input);
 
+        $skipTypes = (array) $input->getOption('skip-type');
         $isDryRun = (bool) $input->getOption('dry-run');
         $yamlFiles = $this->yamlFinder->findYamlFiles($directoryPaths);
 
@@ -49,6 +56,7 @@ final class RemoveExplicitArgumentsCommand extends Command
 
         // those types should be skipped, as used in multiple services with different names
         $ambiguousClassNames = $this->resolveAmbiguousClassTypes($yamlFiles);
+        $skipClasses = array_merge($ambiguousClassNames, $skipTypes);
 
         foreach ($yamlFiles as $yamlFile) {
             if ($yamlFile->getServices() === []) {
@@ -62,7 +70,7 @@ final class RemoveExplicitArgumentsCommand extends Command
 
                 if (! $this->argumentDefinitionAnalyzer->hasFullyAutowireabeArguments(
                     $serviceDefinition,
-                    $ambiguousClassNames
+                    $skipClasses
                 )) {
                     continue;
                 }
