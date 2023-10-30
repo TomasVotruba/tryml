@@ -67,7 +67,13 @@ final class RemoveExplicitArgumentsCommand extends Command
                     continue;
                 }
 
-                $this->symfonyStyle->note(sprintf('The "%s" service can drop its arguments', $serviceName));
+                $yamlFile->changedYamlService($serviceName, function (array $serviceDefinition) {
+                    unset($serviceDefinition['arguments']);
+
+                    return $serviceDefinition;
+                });
+
+                $this->symfonyStyle->note(sprintf('The "%s" service dropped its arguments', $serviceName));
             }
         }
 
