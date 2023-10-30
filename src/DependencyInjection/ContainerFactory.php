@@ -11,6 +11,7 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use TomasVotruba\Tryml\Command\NamedToTypedServicesCommand;
+use TomasVotruba\Tryml\Command\RemoveExplicitArgumentsCommand;
 
 final class ContainerFactory
 {
@@ -31,7 +32,10 @@ final class ContainerFactory
         );
 
         $container->singleton(Application::class, function (Container $container): Application {
-            $commands = [$container->make(NamedToTypedServicesCommand::class)];
+            $commands = [
+                $container->make(NamedToTypedServicesCommand::class),
+                $container->make(RemoveExplicitArgumentsCommand::class),
+            ];
 
             $application = new Application();
             $application->addCommands($commands);
