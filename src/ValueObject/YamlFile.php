@@ -113,6 +113,11 @@ final class YamlFile
             return;
         }
 
+        // retype to null for easier print
+        if ($changedServiceDefinition === []) {
+            $changedServiceDefinition = null;
+        }
+
         $this->yaml['services'][$serviceKey] = $changedServiceDefinition;
         $this->markAsChanged();
     }
