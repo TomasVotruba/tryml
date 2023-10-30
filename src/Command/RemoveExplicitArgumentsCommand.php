@@ -39,7 +39,6 @@ final class RemoveExplicitArgumentsCommand extends Command
         $directoryPaths = $this->getDirectoryPaths($input);
 
         $isDryRun = (bool) $input->getOption('dry-run');
-
         $yamlFiles = $this->yamlFinder->findYamlFiles($directoryPaths);
 
         $this->symfonyStyle->note(sprintf('Found %d YAML files', count($yamlFiles)));
@@ -65,6 +64,8 @@ final class RemoveExplicitArgumentsCommand extends Command
                 });
             }
         }
+
+        $this->yamlPrinter->print($yamlFiles, $isDryRun);
 
         return self::SUCCESS;
     }
