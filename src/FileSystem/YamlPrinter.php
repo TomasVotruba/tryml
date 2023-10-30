@@ -12,14 +12,10 @@ use TomasVotruba\Tryml\ValueObject\YamlFile;
 
 final class YamlPrinter
 {
-    private SymfonyStyle $symfonyStyle;
-
-    private TrymlDiffer $trymlDiffer;
-
-    public function __construct(SymfonyStyle $symfonyStyle)
-    {
-        $this->symfonyStyle = $symfonyStyle;
-        $this->trymlDiffer = new TrymlDiffer();
+    public function __construct(
+        private readonly SymfonyStyle $symfonyStyle,
+        private readonly TrymlDiffer $trymlDiffer,
+    ) {
     }
 
     /**
@@ -36,7 +32,10 @@ final class YamlPrinter
 
             $changedYamlContents = Yaml::dump($yamlFile->getYaml(), 4, 2, Yaml::DUMP_EXCEPTION_ON_INVALID_TYPE);
 
-            $consoleFormattedDiff = $this->trymlDiffer->diffForConsole($yamlFile->getOriginalFileContents(), $changedYamlContents);
+            $consoleFormattedDiff = $this->trymlDiffer->diffForConsole(
+                $yamlFile->getOriginalFileContents(),
+                $changedYamlContents
+            );
             $this->symfonyStyle->writeln($consoleFormattedDiff);
 
             if (! $isDryRun) {

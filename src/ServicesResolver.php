@@ -12,9 +12,10 @@ final class ServicesResolver
 {
     /**
      * @param YamlFile[] $yamlFiles
+     * @param string[] $skipClasses
      * @return string[]
      */
-    public static function resolveRegisteredServiceNames(array $yamlFiles): array
+    public function resolveRegisteredServiceNames(array $yamlFiles, array $skipClasses): array
     {
         $registeredServiceNames = [];
 
@@ -33,7 +34,7 @@ final class ServicesResolver
                 $currentClass = $serviceDefinition['class'] ?? null;
 
                 // skip excluded classes
-                if (is_string($currentClass) && in_array($currentClass, Enum\Skipped::SKIPPED_CLASSES, true)) {
+                if (is_string($currentClass) && in_array($currentClass, $skipClasses, true)) {
                     continue;
                 }
 
@@ -50,7 +51,7 @@ final class ServicesResolver
      * @param YamlFile[] $yamlFiles
      * @return string[]
      */
-    public static function resolveAliasNames(array $yamlFiles): array
+    public function resolveAliasNames(array $yamlFiles): array
     {
         $aliases = [];
 
@@ -73,18 +74,13 @@ final class ServicesResolver
      *
      * @return string[]
      */
-    public static function resolveServicesNamesToReplace(array $serviceNames, array $servicesNamesToSkip): array
+    public function resolveServicesNamesToReplace(array $serviceNames, array $servicesNamesToSkip): array
     {
         Assert::allString($serviceNames);
         Assert::allString($servicesNamesToSkip);
 
         return array_filter($serviceNames, function (string $serviceName) use ($servicesNamesToSkip): bool {
-            //            // handle only ones starting with "crv." or "curve"
-            //            if (strpos($serviceName, 'crv.') !== 0 && ) {
-            //                return false;
-            //            }
-
-            return ! in_array($serviceName, $servicesNamesToSkip);
+            return ! in_array($serviceName, $servicesNamesToSkip, true);
         });
     }
 
@@ -92,7 +88,7 @@ final class ServicesResolver
      * @param YamlFile[] $yamlFiles
      * @return string[]
      */
-    public static function resolveAmbiguousClassesNames(array $yamlFiles): array
+    public function resolveAmbiguousClassesNames(array $yamlFiles): array
     {
         $serviceClasses = [];
 

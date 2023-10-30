@@ -31,11 +31,10 @@ final class ContainerFactory
         );
 
         $container->singleton(Application::class, function (Container $container): Application {
-            /** @var NamedToTypedServicesCommand $checkCommand */
-            $checkCommand = $container->make(NamedToTypedServicesCommand::class);
+            $commands = [$container->make(NamedToTypedServicesCommand::class)];
 
             $application = new Application();
-            $application->add($checkCommand);
+            $application->addCommands($commands);
 
             $commandNamesToHide = ['list', 'completion', 'help'];
             foreach ($commandNamesToHide as $commandNameToHide) {

@@ -14,9 +14,7 @@ final class YamlFinderTest extends TestCase
     {
         $yamlFinder = new YamlFinder();
 
-        $yamlFiles = $yamlFinder->findYamlFiles([
-            __DIR__ . '/fixture',
-        ]);
+        $yamlFiles = $yamlFinder->findYamlFiles([__DIR__ . '/fixture']);
 
         $this->assertCount(2, $yamlFiles);
         $this->assertContainsOnlyInstancesOf(YamlFile::class, $yamlFiles);
