@@ -1,0 +1,11 @@
+parameters:
+    level: max
+
+    paths:
+        - bin
+        - src
+        - tests
+
+    excludePaths:
+        - */Fixture/*
+        - */Source/*

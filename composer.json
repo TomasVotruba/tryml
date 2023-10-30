@@ -1,0 +1,47 @@
+{
+    "name": "tomasvotruba/rebase-me",
+    "description": "Rebase all your branches at once without effors",
+    "license": "MIT",
+    "bin": [
+        "bin/tryml",
+        "bin/tryml.php"
+    ],
+    "require": {
+        "php": ">=8.1",
+        "illuminate/container": "^10.28",
+        "symfony/console": "^6.3",
+        "webmozart/assert": "^1.11"
+    },
+    "require-dev": {
+        "nette/utils": "^3.2",
+        "phpstan/extension-installer": "^1.2",
+        "phpstan/phpstan": "^1.10.25",
+        "phpunit/phpunit": "^10.3",
+        "rector/rector": "^0.18",
+        "symplify/easy-coding-standard": "^12.0",
+        "symplify/phpstan-extensions": "^11.2",
+        "tracy/tracy": "^2.10"
+    },
+    "autoload": {
+        "psr-4": {
+            "TomasVotruba\\Tryml\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "TomasVotruba\\Tryml\\Tests\\": "tests"
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "phpstan/extension-installer": true
+        }
+    },
+    "scripts": {
+        "check-cs": "vendor/bin/ecs check --ansi",
+        "fix-cs": "vendor/bin/ecs check --fix --ansi",
+        "phpstan": "vendor/bin/phpstan analyse --ansi  --error-format symplify",
+        "rector": "vendor/bin/rector process --dry-run --ansi"
+    }
+}
