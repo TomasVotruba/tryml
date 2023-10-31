@@ -12,6 +12,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use TomasVotruba\Tryml\Analyzer\ArgumentDefinitionAnalyzer;
 use TomasVotruba\Tryml\ArrayUtils;
+use TomasVotruba\Tryml\Console\InputHelper;
 use TomasVotruba\Tryml\FileSystem\YamlFinder;
 use TomasVotruba\Tryml\FileSystem\YamlPrinter;
 use TomasVotruba\Tryml\ValueObject\YamlFile;
@@ -48,7 +49,8 @@ final class RemoveExplicitArgumentsCommand extends Command
     {
         $directoryPaths = $this->getDirectoryPaths($input);
 
-        $skipTypes = (array) $input->getOption('skip-type');
+        $skipTypes = InputHelper::resolveSkippedTypes($input);
+
         $isDryRun = (bool) $input->getOption('dry-run');
         $yamlFiles = $this->yamlFinder->findYamlFiles($directoryPaths);
 

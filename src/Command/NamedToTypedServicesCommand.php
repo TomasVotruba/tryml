@@ -11,6 +11,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use TomasVotruba\Tryml\Application\NamedServicesYamlProcessor;
+use TomasVotruba\Tryml\Console\InputHelper;
 use TomasVotruba\Tryml\FileSystem\YamlFinder;
 use TomasVotruba\Tryml\FileSystem\YamlPrinter;
 use TomasVotruba\Tryml\ServicesResolver;
@@ -59,7 +60,8 @@ final class NamedToTypedServicesCommand extends Command
         Assert::allString($paths);
         Assert::allFileExists($paths);
 
-        $skipTypes = (array) $input->getOption('skip-type');
+        $skipTypes = InputHelper::resolveSkippedTypes($input);
+
         $skipNames = (array) $input->getOption('skip-name');
         $isDryRun = (bool) $input->getOption('dry-run');
 
