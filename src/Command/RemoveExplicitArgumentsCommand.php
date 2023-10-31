@@ -68,6 +68,11 @@ final class RemoveExplicitArgumentsCommand extends Command
                     continue;
                 }
 
+                // skip as on purpose to factory
+                if (isset($serviceDefinition['factory'])) {
+                    continue;
+                }
+
                 if (! $this->argumentDefinitionAnalyzer->hasFullyAutowireabeArguments(
                     $serviceDefinition,
                     $skipClasses
