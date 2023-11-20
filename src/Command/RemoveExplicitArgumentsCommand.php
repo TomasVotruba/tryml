@@ -58,7 +58,7 @@ final class RemoveExplicitArgumentsCommand extends Command
 
         // those types should be skipped, as used in multiple services with different names
         $ambiguousClassNames = $this->resolveAmbiguousClassTypes($yamlFiles);
-        $skipClasses = array_merge($ambiguousClassNames, $skipTypes);
+        $skipClasses = [...$ambiguousClassNames, ...$skipTypes];
 
         foreach ($yamlFiles as $yamlFile) {
             if ($yamlFile->getServices() === []) {
@@ -82,7 +82,7 @@ final class RemoveExplicitArgumentsCommand extends Command
                     continue;
                 }
 
-                $yamlFile->changeYamlService($serviceName, function (array $serviceDefinition) {
+                $yamlFile->changeYamlService($serviceName, static function (array $serviceDefinition): array {
                     unset($serviceDefinition['arguments']);
                     return $serviceDefinition;
                 });

@@ -16,7 +16,7 @@ final class InputHelper
         $skippedTypes = (array) $input->getOption('skip-type');
 
         foreach ($skippedTypes as $key => $skippedType) {
-            $skippedTypes[$key] = ltrim($skippedType, '\\');
+            $skippedTypes[$key] = ltrim((string) $skippedType, '\\');
         }
 
         return $skippedTypes;

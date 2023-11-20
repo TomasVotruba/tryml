@@ -14,7 +14,7 @@ final class TrimArgumentsYamlTraverser implements YamlTraverserInterface
     /**
      * @var string[]
      */
-    private const ALWAYS_KNOWN_SERVICE_NAMES = ['@form.factory', '@jms_serializer'];
+    private const ALWAYS_KNOWN_SERVICE_NAMES = ['@form.factory', '@jms_serializer', '@event_dispatcher'];
 
     /**
      * @param YamlFile[] $yamlFiles
@@ -23,17 +23,7 @@ final class TrimArgumentsYamlTraverser implements YamlTraverserInterface
     {
         // 1. replace service names by classes
         foreach ($yamlFiles as $yamlFile) {
-            $services = $yamlFile->getServices();
-            if ($services === []) {
-                continue;
-            }
-
-            foreach ($services as $serviceName => $serviceDefinition) {
-                // the class must be autoloadable to get param names
-                if (! class_exists($serviceName)) {
-                    continue;
-                }
-
+            foreach ($yamlFile->getServices() as $serviceName => $serviceDefinition) {
                 // resolve constructor parameter names
                 $parameterNames = ConstructorParameterNamesResolver::resolve($serviceName);
                 if ($parameterNames === []) {
@@ -42,35 +32,12 @@ final class TrimArgumentsYamlTraverser implements YamlTraverserInterface
 
                 $yamlFile->changeYamlService($serviceName, function (array $serviceDefinition) use (
                     $parameterNames
-                ) {
+                ): ?array {
                     if ($this->shouldSkipServiceDefinition($serviceDefinition)) {
                         return null;
                     }
 
-                    foreach ($serviceDefinition[ServiceKey::ARGUMENTS] as $key => $value) {
-                        // some weird setup
-                        if (! is_string($value)) {
-                            return null;
-                        }
-
-                        if ($this->isTypeReference($value)) {
-                            // is most likely type => remove
-                            unset($serviceDefinition['arguments'][$key]);
-                            continue;
-                        }
-
-                        if ($this->isKnownAutowiredName($value)) {
-                            unset($serviceDefinition['arguments'][$key]);
-                            continue;
-                        }
-
-                        // replace implicit argument with explicit one
-                        $parameterName = $parameterNames[$key];
-                        unset($serviceDefinition['arguments'][$key]);
-                        $serviceDefinition['arguments']['$' . $parameterName] = $value;
-                    }
-
-                    return $serviceDefinition;
+                    return $this->trimServiceNames($serviceDefinition, $parameterNames);
                 });
             }
         }
@@ -104,5 +71,38 @@ final class TrimArgumentsYamlTraverser implements YamlTraverserInterface
     private function isKnownAutowiredName(string $value): bool
     {
         return in_array($value, self::ALWAYS_KNOWN_SERVICE_NAMES, true);
+    }
+
+    /**
+     * @param array<string, mixed> $serviceDefinition
+     * @param string[] $parameterNames
+     * @return array<string, mixed>|null
+     */
+    private function trimServiceNames(array $serviceDefinition, array $parameterNames): ?array
+    {
+        foreach ($serviceDefinition[ServiceKey::ARGUMENTS] as $key => $value) {
+            // some weird setup
+            if (! is_string($value)) {
+                return null;
+            }
+
+            if ($this->isTypeReference($value)) {
+                // is most likely type => remove
+                unset($serviceDefinition['arguments'][$key]);
+                continue;
+            }
+
+            if ($this->isKnownAutowiredName($value)) {
+                unset($serviceDefinition['arguments'][$key]);
+                continue;
+            }
+
+            // replace implicit argument with explicit one
+            $parameterName = $parameterNames[$key];
+            unset($serviceDefinition['arguments'][$key]);
+            $serviceDefinition['arguments']['$' . $parameterName] = $value;
+        }
+
+        return $serviceDefinition;
     }
 }

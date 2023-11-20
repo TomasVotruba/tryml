@@ -31,7 +31,7 @@ final class SkippedServicesResolver
         $aliasNames = $this->servicesResolver->resolveAliasNames($yamlFiles);
         $ambiguousClassesNames = $this->servicesResolver->resolveAmbiguousClassesNames($yamlFiles);
 
-        return array_merge($multipleTimesRegisteredClasses, $aliasNames, $ambiguousClassesNames, $skipNames);
+        return [...$multipleTimesRegisteredClasses, ...$aliasNames, ...$ambiguousClassesNames, ...$skipNames];
     }
 
     /**

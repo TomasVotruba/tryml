@@ -79,9 +79,10 @@ final class ServicesResolver
         Assert::allString($serviceNames);
         Assert::allString($servicesNamesToSkip);
 
-        return array_filter($serviceNames, function (string $serviceName) use ($servicesNamesToSkip): bool {
-            return ! in_array($serviceName, $servicesNamesToSkip, true);
-        });
+        return array_filter(
+            $serviceNames,
+            static fn (string $serviceName): bool => ! in_array($serviceName, $servicesNamesToSkip, true)
+        );
     }
 
     /**
