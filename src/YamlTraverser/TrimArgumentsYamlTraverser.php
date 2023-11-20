@@ -87,9 +87,13 @@ final class TrimArgumentsYamlTraverser implements YamlTraverserInterface
                 return null;
             }
 
+            // already used named argument
+            if (is_string($key)) {
+                return null;
+            }
+
             // is most likely type => remove
             unset($serviceDefinition[ServiceKey::ARGUMENTS][$key]);
-
             if ($this->isTypeReference($value)) {
                 continue;
             }
@@ -97,6 +101,9 @@ final class TrimArgumentsYamlTraverser implements YamlTraverserInterface
             if ($this->isKnownAutowiredName($value)) {
                 continue;
             }
+
+            var_dump($key);
+            var_dump($serviceDefinition);
 
             // replace implicit argument with explicit one
             $parameterName = $parameterNames[$key];
