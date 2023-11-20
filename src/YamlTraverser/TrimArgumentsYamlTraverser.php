@@ -6,6 +6,7 @@ namespace TomasVotruba\Tryml\YamlTraverser;
 
 use TomasVotruba\Tryml\Contract\YamlTraverserInterface;
 use TomasVotruba\Tryml\Enum\ServiceKey;
+use TomasVotruba\Tryml\Exception\ShouldNotHappenException;
 use TomasVotruba\Tryml\Reflection\ConstructorParameterNamesResolver;
 use TomasVotruba\Tryml\ValueObject\YamlFile;
 use Webmozart\Assert\Assert;
@@ -32,13 +33,14 @@ final class TrimArgumentsYamlTraverser implements YamlTraverserInterface
                 }
 
                 $yamlFile->changeYamlService($serviceName, function (array $serviceDefinition) use (
-                    $parameterNames
+                    $parameterNames,
+                    $serviceName
                 ): ?array {
                     if ($this->shouldSkipServiceDefinition($serviceDefinition)) {
                         return null;
                     }
 
-                    return $this->trimServiceNames($serviceDefinition, $parameterNames);
+                    return $this->trimServiceNames($serviceDefinition, $parameterNames, $serviceName);
                 });
             }
         }
@@ -79,7 +81,7 @@ final class TrimArgumentsYamlTraverser implements YamlTraverserInterface
      * @param string[] $parameterNames
      * @return array<string, mixed>|null
      */
-    private function trimServiceNames(array $serviceDefinition, array $parameterNames): ?array
+    private function trimServiceNames(array $serviceDefinition, array $parameterNames, string $serviceName): ?array
     {
         foreach ($serviceDefinition[ServiceKey::ARGUMENTS] as $key => $value) {
             // some weird setup
@@ -102,8 +104,13 @@ final class TrimArgumentsYamlTraverser implements YamlTraverserInterface
                 continue;
             }
 
-            var_dump($key);
-            var_dump($serviceDefinition);
+            if (! isset($parameterNames[$key])) {
+                throw new ShouldNotHappenException(sprintf(
+                    'Class "%s" configuration is using extra type in %d',
+                    $serviceName,
+                    $key
+                ));
+            }
 
             // replace implicit argument with explicit one
             $parameterName = $parameterNames[$key];
