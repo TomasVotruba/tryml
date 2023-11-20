@@ -16,6 +16,10 @@ final class ConstructorParameterNamesResolver
      */
     public static function resolve(string $className): array
     {
+        if (! class_exists($className)) {
+            return [];
+        }
+
         $serviceReflectionClass = new ReflectionClass($className);
         if (! $serviceReflectionClass->hasMethod(MethodName::CONSTRUCTOR)) {
             return [];
