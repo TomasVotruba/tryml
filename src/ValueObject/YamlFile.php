@@ -12,34 +12,20 @@ final class YamlFile
 {
     private bool $hasChanged = false;
 
-    private string $filePath;
-
-    /**
-     * @var array<string, mixed>
-     */
-    private array $yaml;
-
     /**
      * @var mixed[]
      */
-    private array $originalYaml;
-
-    private string $originalFileContents;
+    private readonly array $originalYaml;
 
     /**
      * @param mixed[] $yaml
      */
     public function __construct(
-        string $filePath,
-        array $yaml,
-        string $originalFileContents
+        private readonly string $filePath,
+        private array $yaml,
+        private readonly string $originalFileContents
     ) {
-        $this->filePath = $filePath;
-
-        $this->yaml = $yaml;
         $this->originalYaml = $yaml;
-
-        $this->originalFileContents = $originalFileContents;
     }
 
     public function getFilePath(): string
@@ -54,7 +40,7 @@ final class YamlFile
 
     public function changeYaml(callable $callable): void
     {
-        $yaml = $this->getYaml();
+        $yaml = $this->yaml;
         $changedYaml = $callable($yaml);
 
         if ($changedYaml === null || $changedYaml === $yaml) {

@@ -10,11 +10,9 @@ use TomasVotruba\Tryml\ValueObject\YamlFile;
 
 final class ReplaceServiceMethodCallByTypesYamlTraverser implements YamlTraverserInterface
 {
-    private ServiceNameToClassMap $serviceNameToClassMap;
-
-    public function __construct(ServiceNameToClassMap $serviceNameToClassMap)
-    {
-        $this->serviceNameToClassMap = $serviceNameToClassMap;
+    public function __construct(
+        private readonly ServiceNameToClassMap $serviceNameToClassMap
+    ) {
     }
 
     /**

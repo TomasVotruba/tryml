@@ -32,13 +32,12 @@ final class ContainerFactory
             }
         );
 
-        $container->singleton(Application::class, function (Container $container): Application {
+        $container->singleton(Application::class, static function (Container $container): Application {
             $commands = [
                 $container->make(NamedToTypedServicesCommand::class),
                 $container->make(RemoveExplicitArgumentsCommand::class),
                 $container->make(TrimArgumentsCommand::class),
             ];
-
             $application = new Application();
             $application->addCommands($commands);
 

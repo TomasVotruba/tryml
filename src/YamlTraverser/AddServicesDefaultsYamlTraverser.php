@@ -23,7 +23,7 @@ final class AddServicesDefaultsYamlTraverser implements YamlTraverserInterface
                 continue;
             }
 
-            $yamlFile->changeYaml(function (array $yaml): ?array {
+            $yamlFile->changeYaml(static function (array $yaml): ?array {
                 // already set
                 if (isset($yaml['services'][ServiceKey::DEFAULTS])) {
                     return null;
@@ -36,7 +36,6 @@ final class AddServicesDefaultsYamlTraverser implements YamlTraverserInterface
                         'autoconfigure' => true,
                     ],
                 ], $yaml['services']);
-
                 return $yaml;
             });
         }

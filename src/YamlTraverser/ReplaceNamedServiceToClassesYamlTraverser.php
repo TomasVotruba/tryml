@@ -14,7 +14,7 @@ final class ReplaceNamedServiceToClassesYamlTraverser implements YamlTraverserIn
     /**
      * @var string[]
      */
-    private array $servicesNamesToReplaceWithClass;
+    private readonly array $servicesNamesToReplaceWithClass;
 
     /**
      * @var array<string, string>
@@ -64,7 +64,7 @@ final class ReplaceNamedServiceToClassesYamlTraverser implements YamlTraverserIn
                 $this->serviceNamesToClasses[$serviceName] = $serviceClass;
             }
 
-            $yamlFile->changeYaml(function (array $yaml) use ($changedServices) {
+            $yamlFile->changeYaml(static function (array $yaml) use ($changedServices): array {
                 $yaml['services'] = $changedServices;
                 return $yaml;
             });

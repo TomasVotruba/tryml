@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TomasVotruba\Tryml\Reflection;
 
 use ReflectionClass;
+use ReflectionMethod;
 use TomasVotruba\Tryml\Enum\MethodName;
 use Webmozart\Assert\Assert;
 
@@ -20,7 +21,7 @@ final class ConstructorParameterNamesResolver
             return [];
         }
 
-        /** @var \ReflectionMethod $constructClassMethod */
+        /** @var ReflectionMethod $constructClassMethod */
         $constructClassMethod = $serviceReflectionClass->getConstructor();
 
         $parameterNames = [];

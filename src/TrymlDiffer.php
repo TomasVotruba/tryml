@@ -10,7 +10,7 @@ use TomasVotruba\Tryml\Console\ColorConsoleDiffFormatter;
 
 final class TrymlDiffer
 {
-    private Differ $differ;
+    private readonly Differ $differ;
 
     public function __construct(
         private readonly ColorConsoleDiffFormatter $colorConsoleDiffFormatter,
