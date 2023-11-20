@@ -25,7 +25,7 @@ final class ReplaceServiceNamedArgumentByTypesYamlTraverser implements YamlTrave
     {
         foreach ($yamlFiles as $yamlFile) {
             foreach ($yamlFile->getServices() as $serviceName => $serviceDefinition) {
-                $yamlFile->changedYamlService($serviceName, function (array $serviceDefinition): ?array {
+                $yamlFile->changeYamlService($serviceName, function (array $serviceDefinition): ?array {
                     if (! isset($serviceDefinition[ServiceKey::ARGUMENTS])) {
                         return null;
                     }

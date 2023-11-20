@@ -82,7 +82,7 @@ final class RemoveExplicitArgumentsCommand extends Command
                     continue;
                 }
 
-                $yamlFile->changedYamlService($serviceName, function (array $serviceDefinition) {
+                $yamlFile->changeYamlService($serviceName, function (array $serviceDefinition) {
                     unset($serviceDefinition['arguments']);
                     return $serviceDefinition;
                 });

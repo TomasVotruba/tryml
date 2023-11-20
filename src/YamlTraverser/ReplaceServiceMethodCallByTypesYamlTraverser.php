@@ -24,7 +24,7 @@ final class ReplaceServiceMethodCallByTypesYamlTraverser implements YamlTraverse
     {
         foreach ($yamlFiles as $yamlFile) {
             foreach ($yamlFile->getServices() as $serviceKey => $serviceDefinition) {
-                $yamlFile->changedYamlService($serviceKey, function (array $serviceDefinition): ?array {
+                $yamlFile->changeYamlService($serviceKey, function (array $serviceDefinition): ?array {
                     if (! isset($serviceDefinition['calls'])) {
                         return null;
                     }

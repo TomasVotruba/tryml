@@ -15,4 +15,14 @@ final class ServiceKey
      * @var string
      */
     public const ARGUMENTS = 'arguments';
+
+    /**
+     * @var string
+     */
+    public const DECORATES = 'decorates';
+
+    /**
+     * @var string
+     */
+    public const FACTORY = 'factory';
 }
