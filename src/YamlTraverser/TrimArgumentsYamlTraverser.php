@@ -8,6 +8,7 @@ use TomasVotruba\Tryml\Contract\YamlTraverserInterface;
 use TomasVotruba\Tryml\Enum\ServiceKey;
 use TomasVotruba\Tryml\Reflection\ConstructorParameterNamesResolver;
 use TomasVotruba\Tryml\ValueObject\YamlFile;
+use Webmozart\Assert\Assert;
 
 final class TrimArgumentsYamlTraverser implements YamlTraverserInterface
 {
@@ -86,21 +87,22 @@ final class TrimArgumentsYamlTraverser implements YamlTraverserInterface
                 return null;
             }
 
+            // is most likely type => remove
+            unset($serviceDefinition[ServiceKey::ARGUMENTS][$key]);
+
             if ($this->isTypeReference($value)) {
-                // is most likely type => remove
-                unset($serviceDefinition['arguments'][$key]);
                 continue;
             }
 
             if ($this->isKnownAutowiredName($value)) {
-                unset($serviceDefinition['arguments'][$key]);
                 continue;
             }
 
             // replace implicit argument with explicit one
             $parameterName = $parameterNames[$key];
-            unset($serviceDefinition['arguments'][$key]);
-            $serviceDefinition['arguments']['$' . $parameterName] = $value;
+            Assert::notEmpty($parameterName);
+
+            $serviceDefinition[ServiceKey::ARGUMENTS]['$' . $parameterName] = $value;
         }
 
         return $serviceDefinition;
