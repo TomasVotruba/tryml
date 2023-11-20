@@ -97,7 +97,7 @@ final class YamlFile
         return $this->yaml['services'] ?? [];
     }
 
-    public function changedYamlService(string $serviceKey, callable $callable): void
+    public function changeYamlService(string $serviceKey, callable $callable): void
     {
         if ($serviceKey === ServiceKey::DEFAULTS) {
             return;

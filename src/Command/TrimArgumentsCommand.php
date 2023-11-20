@@ -10,10 +10,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use TomasVotruba\Tryml\Console\InputHelper;
 use TomasVotruba\Tryml\FileSystem\YamlFinder;
 use TomasVotruba\Tryml\FileSystem\YamlPrinter;
-use TomasVotruba\Tryml\SkippedServicesResolver;
+use TomasVotruba\Tryml\YamlTraverser\TrimArgumentsYamlTraverser;
 use Webmozart\Assert\Assert;
 
 final class TrimArgumentsCommand extends Command
@@ -22,7 +21,6 @@ final class TrimArgumentsCommand extends Command
         private readonly SymfonyStyle $symfonyStyle,
         private readonly YamlFinder $yamlFinder,
         private readonly YamlPrinter $yamlPrinter,
-        private readonly SkippedServicesResolver $skippedServicesResolver,
     ) {
         parent::__construct();
     }
@@ -34,14 +32,14 @@ final class TrimArgumentsCommand extends Command
 
         $this->addArgument('paths', InputArgument::IS_ARRAY, 'Paths to directories with YAML files');
 
-        $this->addOption(
-            'skip-type',
-            null,
-            InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED,
-            'Types to skip from replacing'
-        );
-
         $this->addOption('dry-run', null, InputOption::VALUE_NONE, 'Run without changing the files');
+
+        $this->addOption(
+            'autoload-file',
+            null,
+            InputOption::VALUE_REQUIRED,
+            'Path to vendor/autoload.php of the project'
+        );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -50,19 +48,21 @@ final class TrimArgumentsCommand extends Command
         Assert::allString($paths);
         Assert::allFileExists($paths);
 
-        $skipTypes = InputHelper::resolveSkippedTypes($input);
-
         $isDryRun = (bool) $input->getOption('dry-run');
-
         $yamlFiles = $this->yamlFinder->findYamlFiles($paths);
 
-        $servicesNamesToSkip = $this->skippedServicesResolver->resolve($yamlFiles, [], $skipTypes);
+        $autoloadFile = (string) $input->getOption('autoload-file');
+        if (is_string($autoloadFile) && file_exists($autoloadFile)) {
+            require_once $autoloadFile;
+            $this->symfonyStyle->success(sprintf('Autoload file "%s" loaded', $autoloadFile));
+        }
 
         $this->symfonyStyle->title('Replacing explicit arguments with autowired and named ones');
 
-        // $this->namedServicesYamlProcessor->processYamlFiles($servicesNamesToReplaceWithClass, $yamlFiles);
+        $trimArgumentsYamlTraverser = new TrimArgumentsYamlTraverser();
+        $trimArgumentsYamlTraverser->traverse($yamlFiles);
 
-        // $this->yamlPrinter->print($yamlFiles, $isDryRun);
+        $this->yamlPrinter->print($yamlFiles, $isDryRun);
 
         return self::SUCCESS;
     }
