@@ -10,11 +10,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use TomasVotruba\Tryml\Application\NamedServicesYamlProcessor;
 use TomasVotruba\Tryml\Console\InputHelper;
 use TomasVotruba\Tryml\FileSystem\YamlFinder;
 use TomasVotruba\Tryml\FileSystem\YamlPrinter;
-use TomasVotruba\Tryml\ServicesResolver;
 use TomasVotruba\Tryml\SkippedServicesResolver;
 use Webmozart\Assert\Assert;
 
@@ -24,9 +22,7 @@ final class TrimArgumentsCommand extends Command
         private readonly SymfonyStyle $symfonyStyle,
         private readonly YamlFinder $yamlFinder,
         private readonly YamlPrinter $yamlPrinter,
-        private readonly ServicesResolver $servicesResolver,
         private readonly SkippedServicesResolver $skippedServicesResolver,
-        private readonly NamedServicesYamlProcessor $namedServicesYamlProcessor,
     ) {
         parent::__construct();
     }
@@ -60,35 +56,13 @@ final class TrimArgumentsCommand extends Command
 
         $yamlFiles = $this->yamlFinder->findYamlFiles($paths);
 
-        var_dump($yamlFiles);
-        die;
+        $servicesNamesToSkip = $this->skippedServicesResolver->resolve($yamlFiles, [], $skipTypes);
 
-        $registeredServiceNames = $this->servicesResolver->resolveRegisteredServiceNames($yamlFiles, $skipTypes);
+        $this->symfonyStyle->title('Replacing explicit arguments with autowired and named ones');
 
-        $this->symfonyStyle->title('Registered service names');
-        $this->symfonyStyle->listing($registeredServiceNames);
+        // $this->namedServicesYamlProcessor->processYamlFiles($servicesNamesToReplaceWithClass, $yamlFiles);
 
-        $servicesNamesToSkip = $this->skippedServicesResolver->resolve($yamlFiles, $skipNames, $skipTypes);
-
-        $servicesNamesToReplaceWithClass = $this->servicesResolver->resolveServicesNamesToReplace(
-            $registeredServiceNames,
-            $servicesNamesToSkip
-        );
-
-        $this->symfonyStyle->title('List of services to replace name by type');
-
-        if ($servicesNamesToReplaceWithClass === []) {
-            $this->symfonyStyle->warning('None');
-            return self::FAILURE;
-        }
-
-        // to notice
-        $this->symfonyStyle->listing($servicesNamesToReplaceWithClass);
-        sleep(2);
-
-        $this->namedServicesYamlProcessor->processYamlFiles($servicesNamesToReplaceWithClass, $yamlFiles);
-
-        $this->yamlPrinter->print($yamlFiles, $isDryRun);
+        // $this->yamlPrinter->print($yamlFiles, $isDryRun);
 
         return self::SUCCESS;
     }
