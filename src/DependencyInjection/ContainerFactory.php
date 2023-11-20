@@ -12,6 +12,7 @@ use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use TomasVotruba\Tryml\Command\NamedToTypedServicesCommand;
 use TomasVotruba\Tryml\Command\RemoveExplicitArgumentsCommand;
+use TomasVotruba\Tryml\Command\TrimArgumentsCommand;
 
 final class ContainerFactory
 {
@@ -35,6 +36,7 @@ final class ContainerFactory
             $commands = [
                 $container->make(NamedToTypedServicesCommand::class),
                 $container->make(RemoveExplicitArgumentsCommand::class),
+                $container->make(TrimArgumentsCommand::class),
             ];
 
             $application = new Application();
