@@ -30,12 +30,7 @@ final class ConstructorParameterNamesResolver
 
         $parameterNames = [];
         foreach ($constructClassMethod->getParameters() as $reflectionParameter) {
-            $parameterName = $reflectionParameter->getName();
-            if ($parameterName === null) {
-                dd($reflectionParameter);
-            }
-
-            $parameterNames[] = $parameterName;
+            $parameterNames[] = $reflectionParameter->getName();
         }
 
         Assert::allString($parameterNames);
