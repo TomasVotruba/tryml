@@ -119,6 +119,11 @@ final class TrimArgumentsYamlTraverser implements YamlTraverserInterface
             $serviceDefinition[ServiceKey::ARGUMENTS]['$' . $parameterName] = $value;
         }
 
+        // remove empty arguments
+        if ($serviceDefinition[ServiceKey::ARGUMENTS] === []) {
+            unset($serviceDefinition[ServiceKey::ARGUMENTS]);
+        }
+
         return $serviceDefinition;
     }
 }
