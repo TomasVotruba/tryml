@@ -16,7 +16,7 @@ final class TrimArgumentsYamlTraverser implements YamlTraverserInterface
     /**
      * @var string[]
      */
-    private const ALWAYS_KNOWN_SERVICE_NAMES = ['@form.factory', '@jms_serializer', '@event_dispatcher', '@doctrine'];
+    private const ALWAYS_KNOWN_SERVICE_NAMES = ['@form.factory', '@jms_serializer', '@event_dispatcher', '@doctrine', '@validator'];
 
     /**
      * @param YamlFile[] $yamlFiles
